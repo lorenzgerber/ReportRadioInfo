@@ -1,0 +1,132 @@
+\documentclass[a4paper,11pt,twoside]{article}
+%\documentclass[a4paper,11pt,twoside,se]{article}
+
+\usepackage{UmUStudentReport}
+\usepackage{verbatim}   % Multi-line comments using \begin{comment}
+\usepackage{courier}    % Nicer fonts are used. (not necessary)
+\usepackage{pslatex}    % Also nicer fonts. (not necessary)
+\usepackage[pdftex]{graphicx}   % allows including pdf figures
+\usepackage{listings}
+\usepackage{pgf-umlcd}
+%\usepackage{lmodern}   % Optional fonts. (not necessary)
+%\usepackage{tabularx}
+%\usepackage{microtype} % Provides some typographic improvements over default settings
+%\usepackage{placeins}  % For aligning images with \FloatBarrier
+%\usepackage{booktabs}  % For nice-looking tables
+%\usepackage{titlesec}  % More granular control of sections.
+
+% DOCUMENT INFO
+% =============
+\department{Department of Computing Science}
+\coursename{Application Development in Java 7.5 p}
+\coursecode{5DV135}
+\title{Unit Test Framework}
+\author{Lorenz Gerber ({\tt{dv15lgr@cs.umu.se}} {\tt{lozger03@student.umu.se}})}
+\date{2016-11-17}
+%\revisiondate{2016-01-18}
+\instructor{Johan Eliasson / Jan Erik Moström / Alexander Sutherland / Filip Allberg / Adam Dahlgren Lindström}
+
+
+% DOCUMENT SETTINGS
+% =================
+\bibliographystyle{plain}
+%\bibliographystyle{ieee}
+\pagestyle{fancy}
+\raggedbottom
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+%\graphicspath{{images/}}   %Path for images
+
+\usepackage{float}
+\floatstyle{ruled}
+\newfloat{listing}{thp}{lop}
+\floatname{listing}{Listing}
+
+
+
+% DEFINES
+% =======
+%\newcommand{\mycommand}{<latex code>}
+
+% DOCUMENT
+% ========
+\begin{document}
+\lstset{language=C}
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\thispagestyle{empty}
+\newpage
+
+\clearpage
+\pagenumbering{arabic}
+
+\section{Introduction}
+The aim of this assignment was to learn building a simple GUI application, using the Java Reflection class and formatting the source code according to a given code convention. The implemented application is a so called Unit Tester. It runs unit tests on a given class. The unit tests themselves are also defined in a specific class. A screnshot of the running application can be seen in \textit{figure 1}.  
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=0.8\textwidth]{screenshot.png}
+    \caption{This figure shows a typical screendump of the UnitTest applicaiton running on OSX}
+    \label{fig:screenshot}
+\end{figure}
+
+\section{Usage} 
+\subsection{Compiling from Command Line}
+The source code for the Java application 'UnitTest' was divided into the packages `model', `view' and `controller'. The class containing the `main' method, the classes to be tested as well as the test classes where contained in the base directory (or default package). The following steps were conducted to build a jar application file:
+\begin{verbatim}
+mkdir build
+javac -d ./build *.java controller/UnitTestController.java ./
+    model/*.java view/*.java
+cd build
+jar cvfe UnitTest.jar UnitTestMain *.class controller/ view/ model/
+\end{verbatim} 
+Note that the `jar' file is named `UnitTest' while the `main' containing class is named `UnitTestMain'.
+The source code is provided in a separate tar.gz file.
+
+\subsection{Program Usage}
+The `UnitTest' application is invoked from the command line by \verb+java -jar UnitTest+. Then the application GUI should open with a default test class `Test1' already chosen. To run the unit tests, the user presses the button `Run Tests' upon the output shows up in the main text area. An additional button under the main text area `clear' can be used to empty the main text output area. The application shall be terminated by closing the main application window using the system's window close button.
+
+\section{System Description}
+\subsection{Basic Design}
+The application was designed according to the Model-View-Controller principle. The following classes represent teh respective functionality:
+
+\begin{itemize}
+\item Model: UnitTest
+\item View: UnitTestGui
+\item Controller: UnitTestController
+\end{itemize}
+
+
+The following textual description is also represented in an UML diagram shown in \textit{figure 2}. The `model' is represented by the UnitTest class. If called from a command line only main program, this class provides all functionality needed to do unit testing according to the specifications in the assignment description. Output in this case is obtained through an ArrayList<String> that contains all test messages.
+
+The `view' implementation is the `Swing' based graphical user interface in the class UnitTestGui. Here, it was chosen to keep all interfacing parts to the model such as action listeners outside. Instead, methods that export the interactive elements of the GUI were implemented.
+
+Finally, the `controller' is the UnitTestController class which connects `model' and `view'. It takes a GUI object as argument, which provides the needed access to the GUI elements. The controller class contains all the action listeners and controls the general flow of the program such as verification of the test class and running the actual tests. This is achieved by instantiation of the model from within the controller class.
+
+The main program is kept in a separate class, `TestUnitMain' from which the Swing thread is started. In the current implementation, it was chosen to also start the controller in the Swing Runnable. Hence, also the UnitTest program runs from the Swing thread. If this would result in an unresponsive GUI, the model could be implemented as a separate thread. However, in the current version this was not done. 
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=1.2\textwidth]{diagram.png}
+    \caption{This figure shows the UML diagram of the UnitTest application.}
+    \label{fig:diagram}
+\end{figure}
+
+
+\section{Testing}
+
+\subsection{Automated Testing}
+A set of JUnit tests for the model class `UnitTest' was implemented. Due to a missunderstanding, I was not aware that JUnit tests should be included, the tests were built after coding. While building the tests, it was realized that the chosen design for message output was probably not the most convenient as it makes it difficult to test.
+
+The JUnit tests check mostly the TestClass verification functionality. They assure that wrong TestClasses are detected and reported to the user. A number of test classes (Test1, Test2, Test3) were used for this purpose. It is not clear to me wether this is how it should be done, or whether one should build such objects dynamically within the JUnit code.
+
+\subsection{Manual Testing}
+
+In manual testing a problem was found related to different operating systems. Running the application on OSX resulted in uncaught exceptions when a correct class name with wrong upper/lowercase letters was entered. Several attempts to fix this issue were unsuccessful. Despite setting the statement in question within a try/catch block did not mend the problem. Testing on Linux reavealed that this error did not occur there.
+
+\addcontentsline{toc}{section}{\refname}
+\bibliography{references}
+
+\end{document}
