@@ -96,6 +96,8 @@ There is a background process running that will update the program table once ev
 
 
 \section{System Description}
+The whole application is structured according to the \textit{Model-View-Controller} pattern. This mantra was also followed for packaging the source files. Besides the `model', `view' and `controller' package, there is also a `data\_io' package that contains the XML classes for interacting with the web API. The `RadioInfoMain' class can be found in the base directory.  
+
 
 \subsection{General Structure}
 In figure \ref{fig:basic}, the basic structure of the application is shown. The `main' method in \textit{RadioInfoMain Class} starts a new Swing thread, by defining an anonym \textit{runnable} method. In this method first the main data containers `channels' (\textit{ChannelListModel Class}) and `programs' (\textit{ProgramListModel Class}) are set up. Next the gui instance is started and used as method argument to the `main' (\textit{MainController}). `main' then bootstraps the whole application. 
@@ -104,7 +106,7 @@ In figure \ref{fig:basic}, the basic structure of the application is shown. The 
 \begin{figure}[ht!]
   \centering
   \includegraphics[width=0.8\textwidth]{basicUML.png}
-  \caption{This figure shows the basic structure of the application: The main method is in the RadioInfoMain.class. It defines and starts a new thread. In this thread the two main data containers, channels (ChannelListModel class) and programs (ProgramListModel Class) are set up. Then it instantiates the gui and the MainController. The main controller takes a reference to the gui instance as construction argument. The main controller bootstraps the whole application then.  }
+  \caption{\textit{This figure shows the basic structure of the application: The main method is in the RadioInfoMain.class. It defines and starts a new thread. In this thread the two main data containers, channels (ChannelListModel class) and programs (ProgramListModel Class) are set up. Then it instantiates the gui and the MainController. The main controller takes a reference to the gui instance as construction argument. The main controller bootstraps the whole application then.}}
   \label{fig:basic}
   \end{figure}
 
@@ -115,7 +117,7 @@ test test
 \begin{figure}[p]
   \centering
   \includegraphics[width=1\textwidth]{dataModelsUML.png}
-  \caption{This figure shows the data models used in RadioInfo Application}
+  \caption{\textit{This figure shows the data models used in RadioInfo Application}}
   \label{fig:dataModels}
 \end{figure}
 
@@ -126,7 +128,7 @@ test testo
 \begin{figure}[p]
   \centering
   \includegraphics[width=1\textwidth]{guiUML.png}
-  \caption{This figure shows the simple structure of the graphcial user interface. TablePanel, ProgramDescriptionPanel and ProgramLablePanel are all subclassed from JPanel. They are organized in a JFrame using a \textit{GridLayout} layout manager that specifies three columns and one row. The MenuBar (subclassed from JMenuBar) has two sub menus (subclassed from JMenu): FileMenu and ChannelMenu.}
+  \caption{\textit{This figure shows the simple structure of the graphcial user interface. TablePanel, ProgramDescriptionPanel and ProgramLablePanel are all subclassed from JPanel. They are organized in a JFrame using a \textit{GridLayout} layout manager that specifies three columns and one row. The MenuBar (subclassed from JMenuBar) has two sub menus (subclassed from JMenu): FileMenu and ChannelMenu.}}
   \label{fig:gui}
 \end{figure}
 
