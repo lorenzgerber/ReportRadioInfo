@@ -20,9 +20,9 @@
 \department{Department of Computing Science}
 \coursename{Application Development in Java 7.5 p}
 \coursecode{5DV135}
-\title{Unit Test Framework}
+\title{RadioInfo}
 \author{Lorenz Gerber ({\tt{dv15lgr@cs.umu.se}} {\tt{lozger03@student.umu.se}})}
-\date{2016-11-17}
+\date{2017-01-11}
 %\revisiondate{2016-01-18}
 \instructor{Johan Eliasson / Jan Erik Moström / Alexander Sutherland / Filip Allberg / Adam Dahlgren Lindström}
 
@@ -63,68 +63,90 @@
 \pagenumbering{arabic}
 
 \section{Introduction}
-The aim of this assignment was to learn building a simple GUI application, using the Java Reflection class and formatting the source code according to a given code convention. The implemented application is a so called Unit Tester. It runs unit tests on a given class. The unit tests themselves are also defined in a specific class. A screnshot of the running application can be seen in \textit{figure 1}.  
-
-\begin{figure}[p]
-    \centering
-    \includegraphics[width=0.8\textwidth]{screenshot.png}
-    \caption{This figure shows a typical screendump of the UnitTest applicaiton running on OSX}
-    \label{fig:screenshot}
-\end{figure}
+The aim of this laboration was to develop an application that uses the open web API from `Sveriges Radi' (\textit{http://sverigesradio.se/api/documentation/v2/index.html}) to present the current radio program in a graphical user interface. 
 
 \section{Usage} 
-\subsection{Compiling from Command Line}
-The source code for the Java application 'UnitTest' was divided into the packages `model', `view' and `controller'. The class containing the `main' method, the classes to be tested as well as the test classes where contained in the base directory (or default package). The following steps were conducted to build a jar application file:
+
+\subsection{Compiling from command line}
+The source code for the Java application `RadioInfo' was divided into the packages `model', `view', `controller' and `data\_io'. The class containing the `main' method was contained in the base directory (default package). The follwing steps were conducted to build a jar application file:
+
 \begin{verbatim}
-mkdir build
-javac -d ./build *.java controller/UnitTestController.java ./
-    model/*.java view/*.java
+mkdir biuld
+javac -d ./build *java model/*.java view/*.java controller/*.java ./
+mode_io/*.java
 cd build
-jar cvfe UnitTest.jar UnitTestMain *.class controller/ view/ model/
-\end{verbatim} 
-Note that the `jar' file is named `UnitTest' while the `main' containing class is named `UnitTestMain'.
-The source code is provided in a separate tar.gz file.
+jar cvfe RadioInfo.jar RadioInfoMain *.class model/ view/ controller/ ./
+data_io/
+\end{verbatim}
+
+The `.jar' file is named `RadioInfo.jar' while the `main' containing class is name `RadioInfoMain'. The source code is provided in a separate tar.gz file. 
+
+
 
 \subsection{Program Usage}
-The `UnitTest' application is invoked from the command line by \verb+java -jar UnitTest+. Then the application GUI should open with a default test class `Test1' already chosen. To run the unit tests, the user presses the button `Run Tests' upon the output shows up in the main text area. An additional button under the main text area `clear' can be used to empty the main text output area. The application shall be terminated by closing the main application window using the system's window close button.
+On some operating systems, double click on `RadioInfo.jar' will start the applicatoin. From the command line on OSX and -nix systems, it can be invoked by: \\
+\\
+\verb+java -jar RadioInfo.jar+ \\
+\\
+The application will start and directly show a three split window with the program table on the left, textual program description om the middle and program image on the right.
+Radio programs that started before the current time are shown with white font on black blackground while programs to be broadcasted are shown with black font on white background.
+To get more information about a specific program, the user can click in the table on a program. If available, the respective description and image will be shown in the middle and right side panel.
+The `RadioInfo' application has a menu bar with two drop-down menus: File and Channels. In the file menu, `Reload' allows to refresh the program table by reloading it from the web, while `quit' will terminate the background update service and exit the application. In the `channels' menu, all available channels are shown and can be selected. After selection, the respective program is loaded from the net and visualized in the leftmost panel.
+There is a background process running that will update the program table once every hour. 
+
 
 \section{System Description}
-\subsection{Basic Design}
-The application was designed according to the Model-View-Controller principle. The following classes represent teh respective functionality:
 
-\begin{itemize}
-\item Model: UnitTest
-\item View: UnitTestGui
-\item Controller: UnitTestController
-\end{itemize}
+\subsection{General Structure}
+In figure \ref{fig:basic}, the basic structure of the application is shown. The `main' method in \textit{RadioInfoMain Class} starts a new Swing thread, by defining an anonym \textit{runnable} method. In this method first the main data containers `channels' (\textit{ChannelListModel Class}) and `programs' (\textit{ProgramListModel Class}) are set up. Next the gui instance is started and used as method argument to the `main' (\textit{MainController}). `main' then bootstraps the whole application. 
 
 
-The following textual description is also represented in an UML diagram shown in \textit{figure 2}. The `model' is represented by the UnitTest class. If called from a command line only main program, this class provides all functionality needed to do unit testing according to the specifications in the assignment description. Output in this case is obtained through an ArrayList<String> that contains all test messages.
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=0.8\textwidth]{basicUML.png}
+  \caption{This figure shows the basic structure of the application: The main method is in the RadioInfoMain.class. It defines and starts a new thread. In this thread the two main data containers, channels (ChannelListModel class) and programs (ProgramListModel Class) are set up. Then it instantiates the gui and the MainController. The main controller takes a reference to the gui instance as construction argument. The main controller bootstraps the whole application then.  }
+  \label{fig:basic}
+  \end{figure}
 
-The `view' implementation is the `Swing' based graphical user interface in the class UnitTestGui. Here, it was chosen to keep all interfacing parts to the model such as action listeners outside. Instead, methods that export the interactive elements of the GUI were implemented.
 
-Finally, the `controller' is the UnitTestController class which connects `model' and `view'. It takes a GUI object as argument, which provides the needed access to the GUI elements. The controller class contains all the action listeners and controls the general flow of the program such as verification of the test class and running the actual tests. This is achieved by instantiation of the model from within the controller class.
+\subsection{Data and Data Handling}
 
-The main program is kept in a separate class, `TestUnitMain' from which the Swing thread is started. In the current implementation, it was chosen to also start the controller in the Swing Runnable. Hence, also the UnitTest program runs from the Swing thread. If this would result in an unresponsive GUI, the model could be implemented as a separate thread. However, in the current version this was not done. 
-
+test test
 \begin{figure}[p]
-    \centering
-    \includegraphics[width=1.2\textwidth]{diagram.png}
-    \caption{This figure shows the UML diagram of the UnitTest application.}
-    \label{fig:diagram}
+  \centering
+  \includegraphics[width=1\textwidth]{dataModelsUML.png}
+  \caption{This figure shows the data models used in RadioInfo Application}
+  \label{fig:dataModels}
 \end{figure}
 
+
+\subsection{The Graphical User Interface}
+test testo
+
+\begin{figure}[p]
+  \centering
+  \includegraphics[width=1\textwidth]{guiUML.png}
+  \caption{This figure shows the simple structure of the graphcial user interface. TablePanel, ProgramDescriptionPanel and ProgramLablePanel are all subclassed from JPanel. They are organized in a JFrame using a \textit{GridLayout} layout manager that specifies three columns and one row. The MenuBar (subclassed from JMenuBar) has two sub menus (subclassed from JMenu): FileMenu and ChannelMenu.}
+  \label{fig:gui}
+\end{figure}
+
+
+
+\subsection{Threads and Thread Safety}
+The application uses separate threads for updating the data: SwingWorkers are invoked to not block the UI while pulling new data from the web API. As these operations could be potentially slow, they could be invoked again while the old one is still running. More over, user interactions such as clicking in the table potentially access the same data containers: `programs' and `channels' and `current channel'.
+To make the application thread safe, synchronized methods where used. As all datacontainers get accessed through the MainController, the getters and setters in the MainController for the respective data containers were synchronized. 
+
+
+\subsection{Summary of Design Patterns}
+Observer-Observable
+Model-View-Controller
+Iterator
+
+
+\section{Limitations}
 
 \section{Testing}
 
-\subsection{Automated Testing}
-A set of JUnit tests for the model class `UnitTest' was implemented. Due to a missunderstanding, I was not aware that JUnit tests should be included, the tests were built after coding. While building the tests, it was realized that the chosen design for message output was probably not the most convenient as it makes it difficult to test.
-
-The JUnit tests check mostly the TestClass verification functionality. They assure that wrong TestClasses are detected and reported to the user. A number of test classes (Test1, Test2, Test3) were used for this purpose. It is not clear to me wether this is how it should be done, or whether one should build such objects dynamically within the JUnit code.
-
-\subsection{Manual Testing}
-
-In manual testing a problem was found related to different operating systems. Running the application on OSX resulted in uncaught exceptions when a correct class name with wrong upper/lowercase letters was entered. Several attempts to fix this issue were unsuccessful. Despite setting the statement in question within a try/catch block did not mend the problem. Testing on Linux reavealed that this error did not occur there.
 
 \addcontentsline{toc}{section}{\refname}
 \bibliography{references}
